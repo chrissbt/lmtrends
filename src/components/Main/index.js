@@ -4,7 +4,12 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Alert from '@material-ui/lab/Alert';
 import TextField from '@material-ui/core/TextField';
+import DateRangePicker from '@material-ui/lab/DateRangePicker';
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
+import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
+import Box from '@material-ui/core/Box';
 import MenuItem from '@material-ui/core/MenuItem';
+import moment from 'moment';
 import CSVReader from '../CSVReader/index';
 import Loader from '../Loader/index';
 import Stats from '../Stats/index';
@@ -32,6 +37,10 @@ const time = [
   {
     value: '14 days',
     id: 4,
+  },
+  {
+    value: 'Custom date range',
+    id: 5,
   },
 ];
 
@@ -117,6 +126,9 @@ export default function Main() {
       case '14 days':
         count = 14;
         break;
+      case 'Custom date range':
+        count = 0;
+        break;
       default:
         break;
     }
@@ -157,7 +169,8 @@ export default function Main() {
   const { error, msg } = csvReaderError;
   const { data, totalCount, newData } = result;
   const { startDate, dueDate } = date;
-
+  const [value, setValue] = useState([null, null]);
+  console.log('first value', value[0], 'second value', value[1]);
   return (
     <div className={classes.root}>
       {
@@ -187,6 +200,23 @@ export default function Main() {
           />
         </Grid>
       </Grid>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DateRangePicker
+          startText="Check-in"
+          endText="Check-out"
+          value={value}
+          onChange={(newValue) => {
+            setValue(newValue);
+          }}
+          renderInput={(startProps, endProps) => (
+            <React.Fragment>
+              <TextField {...startProps} variant="standard" />
+              <Box sx={{ mx: 2 }}> to </Box>
+              <TextField {...endProps} variant="standard" />
+            </React.Fragment>
+          )}
+        />
+      </LocalizationProvider>
       <TextField
         id="time-currency"
         select

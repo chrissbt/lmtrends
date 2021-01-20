@@ -1,8 +1,11 @@
 import Main from './components/Main';
+import { StylesProvider } from '@material-ui/core';
 
 function App() {
   return (
-    <Main />
+    <StylesProvider injectFirst>
+      <Main />
+    </StylesProvider>
   );
 }
 
