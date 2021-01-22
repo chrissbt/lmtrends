@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -86,7 +86,11 @@ export default function Main() {
     data: [],
   })
 
-  const [showTime, selectShowTime] = useState('All Time');
+  const [showTime, selectShowTime] = useState(0);
+
+  const [showCustomDate, selectShowCustomDate] = useState(false);
+
+  const [filterTime, setFilterTime] = useState(time);
 
   const handleData = (data, total, startDate, dueDate) => {
     setResult({
@@ -111,23 +115,29 @@ export default function Main() {
   const handleChange = (event) => {
     let count = 0;
     switch (event.target.value) {
-      case 'All Time':
+      case 0:
         count = 0;
+        selectShowCustomDate(false);
         break;
-      case '90 days':
+      case 1:
         count = 90;
+        selectShowCustomDate(false);
         break;
-      case '60 days':
+      case 2:
         count = 60;
+        selectShowCustomDate(false);
         break;
-      case '30 days':
+      case 3:
         count = 30;
+        selectShowCustomDate(false);
         break;
-      case '14 days':
+      case 4:
         count = 14;
+        selectShowCustomDate(false);
         break;
-      case 'Custom date range':
-        count = 0;
+      case 5:
+        count = 100;
+        selectShowCustomDate(true);
         break;
       default:
         break;
@@ -135,6 +145,24 @@ export default function Main() {
     if(count === 0) {
       const totalCount = result.total;
       const newData = result.data;
+      setResult((prev) =>({
+        ...prev,
+        totalCount,
+        newData
+      }))
+      selectShowTime(event.target.value);
+    } else if (count === 100){
+      let newData = result.data.filter(({data}) => {
+        var dateObject = new Date(data['Date']);
+        var compare = dateObject.getTime() >= new Date(customDate[0]).getTime();
+        if(!compare) {
+          return false;
+        }
+        return true;
+      }).map(function(tag) {
+        return tag;
+      });
+      const totalCount = newData.length;
       setResult((prev) =>({
         ...prev,
         totalCount,
@@ -169,8 +197,28 @@ export default function Main() {
   const { error, msg } = csvReaderError;
   const { data, totalCount, newData } = result;
   const { startDate, dueDate } = date;
-  const [value, setValue] = useState([null, null]);
-  console.log('first value', value[0], 'second value', value[1]);
+  const [customDate, setCustomDate] = useState([null, null]);
+
+  let dateTimes = filterTime;
+  
+  useEffect( () => {
+    if (customDate[0] !== null && customDate[1] !== null){
+      async function run(cb){
+        let result = (await Promise.all(dateTimes.filter((time, index) => {
+          if(time.id === 5){
+            time['value'] = moment(customDate[0]).format('L') + '-' + moment(customDate[1]).format('L');
+          }
+          return time;
+        })));
+        cb(result);
+      }
+      run((result) => {
+        setFilterTime(result)
+        selectShowTime(result[5].id)
+      });
+    }
+  }, [customDate]);
+
   return (
     <div className={classes.root}>
       {
@@ -200,23 +248,26 @@ export default function Main() {
           />
         </Grid>
       </Grid>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <DateRangePicker
-          startText="Check-in"
-          endText="Check-out"
-          value={value}
-          onChange={(newValue) => {
-            setValue(newValue);
-          }}
-          renderInput={(startProps, endProps) => (
-            <React.Fragment>
-              <TextField {...startProps} variant="standard" />
-              <Box sx={{ mx: 2 }}> to </Box>
-              <TextField {...endProps} variant="standard" />
-            </React.Fragment>
-          )}
-        />
-      </LocalizationProvider>
+      {
+        showCustomDate &&  <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DateRangePicker
+            startText="Check-in"
+            endText="Check-out"
+            value={customDate}
+            onChange={(newValue) => {
+              setCustomDate(newValue);
+            }}
+            renderInput={(startProps, endProps) => (
+              <React.Fragment>
+                <TextField {...startProps} variant="standard" />
+                <Box sx={{ mx: 2 }}> to </Box>
+                <TextField {...endProps} variant="standard" />
+              </React.Fragment>
+            )}
+          />
+        </LocalizationProvider>
+      }
+     
       <TextField
         id="time-currency"
         select
@@ -224,8 +275,8 @@ export default function Main() {
         onChange={handleChange}
         disabled={result.total === 0}
       >
-        {time.map((time) => (
-          <MenuItem key={time.value} value={time.value}>
+        {filterTime.map((time) => (
+          <MenuItem key={time.value} value={time.id}>
             {time.value}
           </MenuItem>
         ))}

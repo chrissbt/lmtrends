@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CustomTooltip = ({ active, payload, label, total, classes }) => {
+  if (!payload) return null;
   if (active) {
     const value = payload[0].value;
     const percentage = Math.ceil(value / total * 1000) / 10;;
@@ -63,14 +64,16 @@ const renderCustomizedLabel = (props) => {
 export default function Result({data, total}) {
   const classes = useStyles();
 
-  let challenges = data.map(({data}) => {return data['Last Challenge Day Completed'].toLowerCase() === 'none' ? '0' : data['Last Challenge Day Completed']});
-
-  challenges = Object.values(challenges.reduce((c, v) => {
-      c[v] = c[v] || [v, 0];
-      c[v][1]++;
-      return c;
-    },{})).map(o=>({name: o[0] === '0' ? 'None' : o[0] , members : o[1]}));
-
+  let challenges = [];
+  if (data.length > 0) {
+    challenges = data.map(({data}) => {return data['Last Challenge Day Completed'].toLowerCase() === 'none' ? '0' : data['Last Challenge Day Completed']});
+    challenges = Object.values(challenges.reduce((c, v) => {
+        c[v] = c[v] || [v, 0];
+        c[v][1]++;
+        return c;
+      },{})).map(o=>({name: o[0] === '0' ? 'None' : o[0] , members : o[1]}));
+  };
+  
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
