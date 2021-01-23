@@ -44,7 +44,12 @@ const time = [
   },
 ];
 
-
+const tag = [
+  {
+    value: 'All Tags',
+    id: 0,
+  },
+];
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -84,13 +89,18 @@ export default function Main() {
     total: 0,
     totalCount: 0,
     data: [],
+    newData: []
   })
-
-  const [showTime, selectShowTime] = useState(0);
 
   const [showCustomDate, selectShowCustomDate] = useState(false);
 
   const [filterTime, setFilterTime] = useState(time);
+
+  const [showTime, selectShowTime] = useState(0);
+
+  const [filterTags, setFilterTags] = useState(tag);
+
+  const [showTag, selectShowTag] = useState(0);
 
   const handleData = (data, total, startDate, dueDate) => {
     setResult({
@@ -103,6 +113,17 @@ export default function Main() {
       startDate,
       dueDate
     })
+
+    let tags = data.map(({data}) => {return data['Tag'] ? data['Tag'] : 'No Tag';});
+    let allTags = Object.values(tags.reduce((c, v) => {
+      c[v] = c[v] || [v, 0];
+      c[v][1]++;
+      return c;
+    },{})).map((o, i)=>({value: o[0], id: i+1}));
+
+    allTags.unshift({value: 'All Tags', id: 0});
+    setFilterTags(allTags);
+    selectShowTag(allTags[0].id);
   }
 
   const handleError = (error, msg) => {
@@ -111,96 +132,14 @@ export default function Main() {
       msg
     })
   }
-
-  const handleChange = (event) => {
-    let count = 0;
-    switch (event.target.value) {
-      case 0:
-        count = 0;
-        selectShowCustomDate(false);
-        break;
-      case 1:
-        count = 90;
-        selectShowCustomDate(false);
-        break;
-      case 2:
-        count = 60;
-        selectShowCustomDate(false);
-        break;
-      case 3:
-        count = 30;
-        selectShowCustomDate(false);
-        break;
-      case 4:
-        count = 14;
-        selectShowCustomDate(false);
-        break;
-      case 5:
-        count = 100;
-        selectShowCustomDate(true);
-        break;
-      default:
-        break;
-    }
-    if(count === 0) {
-      const totalCount = result.total;
-      const newData = result.data;
-      setResult((prev) =>({
-        ...prev,
-        totalCount,
-        newData
-      }))
-      selectShowTime(event.target.value);
-    } else if (count === 100){
-      let newData = result.data.filter(({data}) => {
-        var dateObject = new Date(data['Date']);
-        var compare = dateObject.getTime() >= new Date(customDate[0]).getTime();
-        if(!compare) {
-          return false;
-        }
-        return true;
-      }).map(function(tag) {
-        return tag;
-      });
-      const totalCount = newData.length;
-      setResult((prev) =>({
-        ...prev,
-        totalCount,
-        newData
-      }))
-      selectShowTime(event.target.value);
-    }
-    else {
-      let today = new Date()
-      let priorDate = new Date().setDate(today.getDate()-count);
-      priorDate = new Date(priorDate)
-      let newData = result.data.filter(({data}) => {
-        var dateObject = new Date(data['Date']);
-        var compare = dateObject.getTime() >= priorDate.getTime();
-        if(!compare) {
-          return false;
-        }
-        return true;
-      }).map(function(tag) {
-        return tag;
-      });
-      const totalCount = newData.length;
-      setResult((prev) =>({
-        ...prev,
-        totalCount,
-        newData
-      }))
-      selectShowTime(event.target.value);
-    }
-  };
-
+  
   const { error, msg } = csvReaderError;
   const { data, totalCount, newData } = result;
   const { startDate, dueDate } = date;
   const [customDate, setCustomDate] = useState([null, null]);
 
   let dateTimes = filterTime;
-  
+
   useEffect( () => {
     if (customDate[0] !== null && customDate[1] !== null){
       async function run(cb){
@@ -217,7 +156,106 @@ export default function Main() {
         selectShowTime(result[5].id)
       });
     }
-  }, [customDate]);
+    selectShowTag(filterTags[0].id);
+  }, [customDate, filterTags]);
+
+  const handleTimeChange = (event) => {
+    event.preventDefault();
+    selectShowTime(event.target.value);
+  }
+
+  const handleTagChange = (event) => {
+    event.preventDefault();
+    selectShowTag(event.target.value);
+  }
+
+useEffect(() => {
+  let totalCount = 0;
+  let newData = [];
+  let count = 0;
+    selectShowCustomDate(false);
+    switch (showTime) {
+      case 0:
+        count = 0;
+        break;
+      case 1:
+        count = 90;
+        break;
+      case 2:
+        count = 60;
+        break;
+      case 3:
+        count = 30;
+        break;
+      case 4:
+        count = 14;
+        break;
+      case 5:
+        count = 100;
+        selectShowCustomDate(true);
+        break;
+      default:
+        break;
+    }
+
+    if(count === 0) {
+      totalCount = result.total;
+      newData = result.data;
+    } else if (count === 100){
+      newData = result.data.filter(({data}) => {
+        var dateObject = new Date(data['Date']);
+        var compare = dateObject.getTime() >= new Date(customDate[0]).getTime() && dateObject.getTime() <= new Date(customDate[1]).getTime();
+        if(!compare) {
+          return false;
+        }
+        return true;
+      }).map(function(tag) {
+        return tag;
+      });
+      totalCount = newData.length;
+    }
+    else {
+      let today = new Date()
+      let priorDate = new Date().setDate(today.getDate()-count);
+      priorDate = new Date(priorDate)
+      newData = result.data.filter(({data}) => {
+        var dateObject = new Date(data['Date']);
+        var compare = dateObject.getTime() >= priorDate.getTime();
+        if(!compare) {
+          return false;
+        }
+        return true;
+      }).map(function(tag) {
+        return tag;
+      });
+      totalCount = newData.length;
+    }
+    if (showTag === 0){
+      setResult((prev) =>({
+        ...prev,
+        totalCount,
+        newData
+      }));
+    } else {
+      newData = newData.filter(({data}) => {
+        var tagObject = data['Tag'];
+        tagObject = tagObject === 'No Tag' ? '' : tagObject;
+        var compare = tagObject === filterTags[showTag].value;
+        if(!compare) {
+          return false;
+        }
+        return true;
+      }).map(function(tag) {
+        return tag;
+      });
+      totalCount = newData.length;
+      setResult((prev) =>({
+        ...prev,
+        totalCount,
+        newData
+      }))
+    }
+}, [showTime, showTag])
 
   return (
     <div className={classes.root}>
@@ -229,7 +267,7 @@ export default function Main() {
         error &&
         <Alert className={classes.alert} severity="error">{msg}</Alert>
       }
-      <Grid container spacing={3} justify="space-between">
+      <Grid container spacing={3} justifyContent="space-between">
         <Grid item>
           <Typography variant="h1" className={classes.title}>
             LM Trends
@@ -267,20 +305,39 @@ export default function Main() {
           />
         </LocalizationProvider>
       }
-     
-      <TextField
-        id="time-currency"
-        select
-        value={showTime}
-        onChange={handleChange}
-        disabled={result.total === 0}
-      >
-        {filterTime.map((time) => (
-          <MenuItem key={time.value} value={time.id}>
-            {time.value}
-          </MenuItem>
-        ))}
-      </TextField>
+      <Grid container spacing={3}>
+        <Grid item>
+          <TextField
+          id="time-currency"
+          select
+          value={showTime}
+          onChange={handleTimeChange}
+          disabled={result.total === 0}
+          >
+            {filterTime.map((time) => (
+              <MenuItem key={time.value} value={time.id}>
+                {time.value}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item>
+          <TextField
+          id="time-currency"
+          select
+          value={showTag}
+          onChange={handleTagChange}
+          disabled={result.total === 0}
+          >
+            {filterTags.map((tag) => (
+              <MenuItem key={tag.value} value={tag.id}>
+                {tag.value}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
       <Stats
         total = {totalCount}
       />
@@ -294,6 +351,7 @@ export default function Main() {
           <Tags
             data = {newData}
             total = {totalCount}
+            showTag = {showTag}
           />
         </>
       }

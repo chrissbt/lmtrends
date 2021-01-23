@@ -96,7 +96,7 @@ const renderLegend = (props) => {
   );
 }
 
-export default function Tags({data, total = 0}) {
+export default function Tags({data, total = 0, showTag}) {
   const classes = useStyles();
 
   let tags = data.map(({data}) => {return data['Tag'] ? data['Tag'] : 'No Tag';});
@@ -154,7 +154,7 @@ export default function Tags({data, total = 0}) {
         </Grid>
         <ul className={classes.tagContainer}>
         {
-          allTags.map((tag, index) => (
+          showTag === 0 && allTags.map((tag, index) => (
             <li key={index} style={{listStyleType: 'none'}} >
               <Typography variant="h6" className={classes.tagText}>
                 {tag.name} - {tag.value}
