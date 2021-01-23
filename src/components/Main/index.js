@@ -169,93 +169,93 @@ export default function Main() {
     selectShowTag(event.target.value);
   }
 
-useEffect(() => {
-  let totalCount = 0;
-  let newData = [];
-  let count = 0;
-    selectShowCustomDate(false);
-    switch (showTime) {
-      case 0:
-        count = 0;
-        break;
-      case 1:
-        count = 90;
-        break;
-      case 2:
-        count = 60;
-        break;
-      case 3:
-        count = 30;
-        break;
-      case 4:
-        count = 14;
-        break;
-      case 5:
-        count = 100;
-        selectShowCustomDate(true);
-        break;
-      default:
-        break;
-    }
+  useEffect(() => {
+    let totalCount = 0;
+    let newData = [];
+    let count = 0;
+      selectShowCustomDate(false);
+      switch (showTime) {
+        case 0:
+          count = 0;
+          break;
+        case 1:
+          count = 90;
+          break;
+        case 2:
+          count = 60;
+          break;
+        case 3:
+          count = 30;
+          break;
+        case 4:
+          count = 14;
+          break;
+        case 5:
+          count = 100;
+          selectShowCustomDate(true);
+          break;
+        default:
+          break;
+      }
 
-    if(count === 0) {
-      totalCount = result.total;
-      newData = result.data;
-    } else if (count === 100){
-      newData = result.data.filter(({data}) => {
-        var dateObject = new Date(data['Date']);
-        var compare = dateObject.getTime() >= new Date(customDate[0]).getTime() && dateObject.getTime() <= new Date(customDate[1]).getTime();
-        if(!compare) {
-          return false;
-        }
-        return true;
-      }).map(function(tag) {
-        return tag;
-      });
-      totalCount = newData.length;
-    }
-    else {
-      let today = new Date()
-      let priorDate = new Date().setDate(today.getDate()-count);
-      priorDate = new Date(priorDate)
-      newData = result.data.filter(({data}) => {
-        var dateObject = new Date(data['Date']);
-        var compare = dateObject.getTime() >= priorDate.getTime();
-        if(!compare) {
-          return false;
-        }
-        return true;
-      }).map(function(tag) {
-        return tag;
-      });
-      totalCount = newData.length;
-    }
-    if (showTag === 0){
-      setResult((prev) =>({
-        ...prev,
-        totalCount,
-        newData
-      }));
-    } else {
-      newData = newData.filter(({data}) => {
-        var tagObject = data['Tag'];
-        tagObject = tagObject === 'No Tag' ? '' : tagObject;
-        var compare = tagObject === filterTags[showTag].value;
-        if(!compare) {
-          return false;
-        }
-        return true;
-      }).map(function(tag) {
-        return tag;
-      });
-      totalCount = newData.length;
-      setResult((prev) =>({
-        ...prev,
-        totalCount,
-        newData
-      }))
-    }
-}, [showTime, showTag])
+      if(count === 0) {
+        totalCount = result.total;
+        newData = result.data;
+      } else if (count === 100){
+        newData = result.data.filter(({data}) => {
+          var dateObject = new Date(data['Date']);
+          var compare = dateObject.getTime() >= new Date(customDate[0]).getTime() && dateObject.getTime() <= new Date(customDate[1]).getTime();
+          if(!compare) {
+            return false;
+          }
+          return true;
+        }).map(function(tag) {
+          return tag;
+        });
+        totalCount = newData.length;
+      }
+      else {
+        let today = new Date()
+        let priorDate = new Date().setDate(today.getDate()-count);
+        priorDate = new Date(priorDate)
+        newData = result.data.filter(({data}) => {
+          var dateObject = new Date(data['Date']);
+          var compare = dateObject.getTime() >= priorDate.getTime();
+          if(!compare) {
+            return false;
+          }
+          return true;
+        }).map(function(tag) {
+          return tag;
+        });
+        totalCount = newData.length;
+      }
+      if (showTag === 0){
+        setResult((prev) =>({
+          ...prev,
+          totalCount,
+          newData
+        }));
+      } else {
+        newData = newData.filter(({data}) => {
+          var tagObject = data['Tag'];
+          tagObject = tagObject === 'No Tag' ? '' : tagObject;
+          var compare = tagObject === filterTags[showTag].value;
+          if(!compare) {
+            return false;
+          }
+          return true;
+        }).map(function(tag) {
+          return tag;
+        });
+        totalCount = newData.length;
+        setResult((prev) =>({
+          ...prev,
+          totalCount,
+          newData
+        }))
+      }
+  }, [showTime, showTag])
 
   return (
     <div className={classes.root}>
