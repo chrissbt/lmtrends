@@ -157,6 +157,7 @@ export default function Main() {
       });
     }
     selectShowTag(filterTags[0].id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customDate, filterTags]);
 
   const handleTimeChange = (event) => {
@@ -255,6 +256,7 @@ export default function Main() {
           newData
         }))
       }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTime, showTag])
 
   return (
