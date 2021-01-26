@@ -144,9 +144,9 @@ export default function Main() {
     if (customDate[0] !== null && customDate[1] !== null){
       async function run(cb){
         let result = (await Promise.all(dateTimes.filter((time, index) => {
-          if(time.id === 5){
-            time['value'] = moment(customDate[0]).format('L') + '-' + moment(customDate[1]).format('L');
-          }
+          // if(time.id === 5){
+          //   time['value'] = moment(customDate[0]).format('L') + '-' + moment(customDate[1]).format('L');
+          // }
           return time;
         })));
         cb(result);
@@ -291,8 +291,8 @@ export default function Main() {
       {
         showCustomDate &&  <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
-            startText="Check-in"
-            endText="Check-out"
+            startText=""
+            endText=""
             value={customDate}
             onChange={(newValue) => {
               setCustomDate(newValue);

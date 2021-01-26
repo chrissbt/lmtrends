@@ -129,41 +129,43 @@ export default function Tags({data, total = 0, showTag}) {
 
   return (
     <div className={classes.root}>
-      <Paper className={classes.paper}>
-        <Typography variant="h1" className={classes.title}>
-          Tags
-        </Typography>
-        <Grid>
-          <PieChart width={300} height={300}>
-            <Pie
-              data={tagsData}
-              cx={150}
-              cy={150}
-              labelLine={false}
-              outerRadius={120}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {
-                data.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-              }
-            </Pie>
-            <Tooltip />
-            <Legend content={renderLegend} width={600} layout="vertical" wrapperStyle={style} />
-          </PieChart>
-        </Grid>
-        <ul className={classes.tagContainer}>
-        {
-          showTag === 0 && allTags.map((tag, index) => (
-            <li key={index} style={{listStyleType: 'none'}} >
-              <Typography variant="h6" className={classes.tagText}>
-                {tag.name} - {tag.value}
-              </Typography>
-            </li>
-          ))
-        }
-        </ul>
-      </Paper>
+      {
+        showTag === 0 && <Paper className={classes.paper}>
+          <Typography variant="h1" className={classes.title}>
+            Tags
+          </Typography>
+          <Grid>
+            <PieChart width={300} height={300}>
+              <Pie
+                data={tagsData}
+                cx={150}
+                cy={150}
+                labelLine={false}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {
+                  data.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                }
+              </Pie>
+              <Tooltip />
+              <Legend content={renderLegend} width={600} layout="vertical" wrapperStyle={style} />
+            </PieChart>
+          </Grid>
+          <ul className={classes.tagContainer}>
+          {
+            allTags.map((tag, index) => (
+              <li key={index} style={{listStyleType: 'none'}} >
+                <Typography variant="h6" className={classes.tagText}>
+                  {tag.name} - {tag.value}
+                </Typography>
+              </li>
+            ))
+          }
+          </ul>
+        </Paper>
+      }
     </div>
   );
 }
