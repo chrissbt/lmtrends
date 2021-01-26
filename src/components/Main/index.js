@@ -9,7 +9,6 @@ import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import Box from '@material-ui/core/Box';
 import MenuItem from '@material-ui/core/MenuItem';
-// import moment from 'moment';
 import CSVReader from '../CSVReader/index';
 import Loader from '../Loader/index';
 import Stats from '../Stats/index';
@@ -138,27 +137,48 @@ export default function Main() {
   const { startDate, dueDate } = date;
   const [customDate, setCustomDate] = useState([null, null]);
 
-  let dateTimes = filterTime;
-
   useEffect( () => {
     if (customDate[0] !== null && customDate[1] !== null){
-      async function run(cb){
-        let result = (await Promise.all(dateTimes.filter((time, index) => {
-          // if(time.id === 5){
-          //   time['value'] = moment(customDate[0]).format('L') + '-' + moment(customDate[1]).format('L');
-          // }
-          return time;
-        })));
-        cb(result);
-      }
-      run((result) => {
-        setFilterTime(result)
-        selectShowTime(result[5].id)
+      let totalCount = 0;
+      let newData = result.data.filter(({data}) => {
+        var dateObject = new Date(data['Date']);
+        var compare = dateObject.getTime() >= new Date(customDate[0]).getTime() && dateObject.getTime() <= new Date(customDate[1]).getTime();
+        if(!compare) {
+          return false;
+        }
+        return true;
+      }).map(function(tag) {
+        return tag;
       });
+      totalCount = newData.length;
+      if (showTag === 0){
+        setResult((prev) =>({
+          ...prev,
+          totalCount,
+          newData
+        }));
+      } else {
+        newData = newData.filter(({data}) => {
+          var tagObject = data['Tag'];
+          tagObject = tagObject === 'No Tag' ? '' : tagObject;
+          var compare = tagObject === filterTags[showTag].value;
+          if(!compare) {
+            return false;
+          }
+          return true;
+        }).map(function(tag) {
+          return tag;
+        });
+        totalCount = newData.length;
+        setResult((prev) =>({
+          ...prev,
+          totalCount,
+          newData
+        }))
+      }
     }
-    selectShowTag(filterTags[0].id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customDate, filterTags]);
+  }, [customDate]);
 
   const handleTimeChange = (event) => {
     event.preventDefault();
