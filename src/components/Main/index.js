@@ -93,7 +93,8 @@ export default function Main() {
 
   const [showCustomDate, selectShowCustomDate] = useState(false);
 
-  const [filterTime, setFilterTime] = useState(time);
+  // eslint-disable-next-line no-unused-vars
+  const [filterTime, setFilterime] = useState(time);
 
   const [showTime, selectShowTime] = useState(0);
 
