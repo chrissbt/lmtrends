@@ -9,6 +9,7 @@ import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import Box from '@material-ui/core/Box';
 import MenuItem from '@material-ui/core/MenuItem';
+import moment from 'moment';
 import CSVReader from '../CSVReader/index';
 import Loader from '../Loader/index';
 import Stats from '../Stats/index';
@@ -79,9 +80,12 @@ export default function Main() {
     msg: '',
   })
 
+  // eslint-disable-next-line no-unused-vars
   const [date, setDate] = useState({
     startDate: '',
-    dueDate: ''
+    dueDate: '',
+    originalStartDate: '',
+    originalDueDate: ''
   })
 
   const [result, setResult] = useState({
@@ -111,7 +115,9 @@ export default function Main() {
     });
     setDate({
       startDate,
-      dueDate
+      dueDate,
+      originalStartDate: startDate,
+      originalDueDate: dueDate
     })
 
     let tags = data.map(({data}) => {return data['Tag'] ? data['Tag'] : 'No Tag';});
@@ -135,7 +141,7 @@ export default function Main() {
   
   const { error, msg } = csvReaderError;
   const { data, totalCount, newData } = result;
-  const { startDate, dueDate } = date;
+  const { startDate, dueDate, originalStartDate, originalDueDate } = date;
   const [customDate, setCustomDate] = useState([null, null]);
 
   useEffect( () => {
@@ -152,6 +158,10 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
+      setDate({
+        startDate: moment(customDate[0]).format('L'),
+        dueDate: moment(customDate[1]).format('L')
+      })
       if (showTag === 0){
         setResult((prev) =>({
           ...prev,
@@ -229,6 +239,10 @@ export default function Main() {
     if(count === 0) {
       totalCount = result.total;
       newData = result.data;
+      setDate({
+        startDate: originalStartDate,
+        dueDate: originalDueDate
+      })
     } else if (count === 100){
       newData = result.data.filter(({data}) => {
         var dateObject = new Date(data['Date']);
@@ -241,6 +255,10 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
+      setDate({
+        startDate: moment(customDate[0]).format('L'),
+        dueDate: moment(customDate[1]).format('L')
+      })
     }
     else {
       let today = new Date()
@@ -257,6 +275,10 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
+      setDate({
+        startDate: moment(priorDate).format('L'),
+        dueDate: moment(new Date().setDate(today.getDate())).format('L')
+      })
     }
     if (showTag === 0){
       setResult((prev) =>({
@@ -302,7 +324,13 @@ export default function Main() {
             LM Trends
           </Typography>
           {
-            startDate &&
+            !showCustomDate && startDate &&
+            <Typography variant="h6" className={classes.date}>
+              {startDate} to {dueDate}
+            </Typography>
+          }
+          {
+            showCustomDate && startDate !== 'Invalid date' && dueDate !== 'Invalid date' &&
             <Typography variant="h6" className={classes.date}>
               {startDate} to {dueDate}
             </Typography>
@@ -318,8 +346,8 @@ export default function Main() {
       {
         showCustomDate &&  <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
-            startText=""
-            endText=""
+            startText="Start Date"
+            endText="End Date"
             value={customDate}
             onChange={(newValue) => {
               setCustomDate(newValue);
