@@ -113,12 +113,13 @@ export default function Main() {
       data,
       newData: data,
     });
-    setDate({
+    setDate((prev) => ({
+      ...prev,
       startDate,
-      dueDate,
+      dueDate: moment(new Date()).format('L'),
       originalStartDate: startDate,
-      originalDueDate: dueDate
-    })
+      originalDueDate: moment(new Date()).format('L')
+    }));
 
     let tags = data.map(({data}) => {return data['Tag'] ? data['Tag'] : 'No Tag';});
     let allTags = Object.values(tags.reduce((c, v) => {
@@ -141,7 +142,7 @@ export default function Main() {
   
   const { error, msg } = csvReaderError;
   const { data, totalCount, newData } = result;
-  const { startDate, dueDate, originalStartDate, originalDueDate } = date;
+  const { startDate, dueDate } = date;
   const [customDate, setCustomDate] = useState([null, null]);
 
   useEffect( () => {
@@ -158,10 +159,11 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
-      setDate({
+      setDate((prev)=>({
+        ...prev,
         startDate: moment(customDate[0]).format('L'),
         dueDate: moment(customDate[1]).format('L')
-      })
+      }));
       if (showTag === 0){
         setResult((prev) =>({
           ...prev,
@@ -239,10 +241,11 @@ export default function Main() {
     if(count === 0) {
       totalCount = result.total;
       newData = result.data;
-      setDate({
-        startDate: originalStartDate,
-        dueDate: originalDueDate
-      })
+      setDate((prev) => ({
+        ...prev,
+        startDate: date.originalStartDate,
+        dueDate: moment(new Date()).format('L')
+      }));
     } else if (count === 100){
       newData = result.data.filter(({data}) => {
         var dateObject = new Date(data['Date']);
@@ -255,10 +258,11 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
-      setDate({
+      setDate((prev) =>({
+        ...prev,
         startDate: moment(customDate[0]).format('L'),
         dueDate: moment(customDate[1]).format('L')
-      })
+      }));
     }
     else {
       let today = new Date()
@@ -275,10 +279,11 @@ export default function Main() {
         return tag;
       });
       totalCount = newData.length;
-      setDate({
+      setDate((prev) => ({
+        ...prev,
         startDate: moment(priorDate).format('L'),
         dueDate: moment(new Date().setDate(today.getDate())).format('L')
-      })
+      }));
     }
     if (showTag === 0){
       setResult((prev) =>({
