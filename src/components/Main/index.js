@@ -173,7 +173,7 @@ export default function Main() {
       } else {
         newData = newData.filter(({data}) => {
           var tagObject = data['Tag'];
-          tagObject = tagObject === 'No Tag' ? '' : tagObject;
+          tagObject = tagObject === '' ? 'No Tag' : tagObject;
           var compare = tagObject === filterTags[showTag].value;
           if(!compare) {
             return false;
@@ -294,7 +294,7 @@ export default function Main() {
     } else {
       newData = newData.filter(({data}) => {
         var tagObject = data['Tag'];
-        tagObject = tagObject === 'No Tag' ? '' : tagObject;
+        tagObject = tagObject === '' ? 'No Tag' : tagObject;
         var compare = tagObject === filterTags[showTag].value;
         if(!compare) {
           return false;
@@ -368,38 +368,41 @@ export default function Main() {
           />
         </LocalizationProvider>
       }
-      <Grid container spacing={3}>
-        <Grid item>
-          <TextField
-            id="time-filter"
-            select
-            value={showTime}
-            onChange={handleTimeChange}
-            disabled={result.total === 0}
-          >
-            {filterTime.map((time) => (
-              <MenuItem key={time.value} value={time.id}>
-                {time.value}
-              </MenuItem>
-            ))}
-          </TextField>
+      <div style={{ paddingTop: 15 }}>
+        <Grid container spacing={3}>
+          <Grid item>
+            <TextField
+              id="time-filter"
+              select
+              value={showTime}
+              onChange={handleTimeChange}
+              disabled={result.total === 0}
+            >
+              {filterTime.map((time) => (
+                <MenuItem key={time.value} value={time.id}>
+                  {time.value}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item>
+            <TextField
+              id="tag-filter"
+              select
+              value={showTag}
+              onChange={handleTagChange}
+              disabled={result.total === 0}
+            >
+              {filterTags.map((tag) => (
+                <MenuItem key={tag.value} value={tag.id}>
+                  {tag.value}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
         </Grid>
-        <Grid item>
-          <TextField
-            id="tag-filter"
-            select
-            value={showTag}
-            onChange={handleTagChange}
-            disabled={result.total === 0}
-          >
-            {filterTags.map((tag) => (
-              <MenuItem key={tag.value} value={tag.id}>
-                {tag.value}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
+      </div>
+      
 
       <Stats
         total = {totalCount}
