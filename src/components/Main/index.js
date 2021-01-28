@@ -326,7 +326,7 @@ export default function Main() {
       <Grid container spacing={3} justifyContent="space-between">
         <Grid item>
           <Typography variant="h1" className={classes.title}>
-            LM Trends
+            LM Trends 
           </Typography>
           {
             !showCustomDate && startDate &&
@@ -421,6 +421,16 @@ export default function Main() {
           />
         </>
       }
+      <div style={{ "font-size": "small", "text-align": "center" }}>
+        <div>
+          <strong>Usage:</strong> Download your Members csv file from your <a rel="noreferrer" target="_blank" href="https://office.legendarymarketer.com/">Legendary back office</a>
+          <strong> (Affiliates > Members > Export)</strong> and import into app
+        </div>
+        <div style={{ "margin-top": "15px" }}>
+        Created by <a href="https://github.com/chrissbt">Chris Fong</a> @ <a href="https://smartbusinesstrends.com">Smart Business Trends</a>
+        </div>
+        
+      </div>
     </div>
   );
 }
